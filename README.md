@@ -125,7 +125,7 @@ Talon is designed around a multi-step action loop. The AI does not just answer q
 ### Installation
 
 1. **Clone the repository:**
-   `git clone https://github.com/yourusername/talon.git`
+   `git clone https://github.com/Konmeo22132-alt/Talon.git`
    `cd talon`
 
 2. **Install dependencies:**
