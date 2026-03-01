@@ -1,156 +1,156 @@
 <h1 align="center">🦅 Talon</h1>
 
 <p align="center">
-  <strong>A personal Windows assistant powered by LLaMA 3.1, controlled remotely via Telegram.</strong>
+  <strong>Trợ lý Windows cá nhân, điều khiển từ xa qua Telegram.</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Node.js-ES%20Modules-339933?logo=node.js&logoColor=white" alt="Node.js">
   <img src="https://img.shields.io/badge/AI-Groq%20(LLaMA%203.1)-f55036" alt="Groq AI">
-  <img src="https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white" alt="Windows">
-  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/Nền_tảng-Windows-0078D6?logo=windows&logoColor=white" alt="Windows">
+  <img src="https://img.shields.io/badge/Giấy_phép-MIT-blue.svg" alt="License">
 </p>
 
 ---
 
-Talon is an autonomous agent running directly on your Windows machine. It acts as an intelligent planner that interprets natural language via Telegram, deciding how to interact with your desktop. It handles app launching, raw mouse/keyboard inputs, file management, and web research without relying on heavy C++ build tools.
+Talon là một agent tự trị chạy trực tiếp trên máy tính Windows của bạn. Nó hoạt động như một hệ thống hoạch định (planner) thông minh, diễn dịch ngôn ngữ tự nhiên qua Telegram để quyết định cách tương tác với màn hình desktop. Talon có khả năng mở ứng dụng, điều khiển chuột/bàn phím trực tiếp, quản lý tập tin và nghiên cứu web mà không cần phụ thuộc vào các công cụ build C++ nặng nề.
 
-*Single user. Single machine. Full control from your phone.*
+*Dành cho một người dùng. Hoạt động trên một máy tính. Toàn quyền kiểm soát từ điện thoại của bạn.*
 
-> **🌐 [Đọc tài liệu bằng Tiếng Việt (Read in Vietnamese)](README_vi.md)**
+> **🌐 [Read documentation in English (Đọc tài liệu bằng Tiếng Anh)](README.md)**
 
-## 📋 Table of Contents
+## 📋 Mục lục
 
-- [Architecture & Flow](#architecture--flow)
-- [Core Features](#core-features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Configuration Variables](#configuration-variables)
-- [License](#license)
+- [Kiến trúc & Luồng hoạt động](#kiến-trúc--luồng-hoạt-động)
+- [Các tính năng cốt lõi](#các-tính-năng-cốt-lõi)
+- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+- [Cấu trúc dự án](#cấu-trúc-dự-án)
+- [Bắt đầu](#bắt-đầu)
+- [Các biến cấu hình](#các-biến-cấu-hình)
+- [Giấy phép](#giấy-phép)
 
 ---
 
-## 🏗 Architecture & Flow
+## 🏗 Kiến trúc & Luồng hoạt động
 
-Talon is designed around a multi-step action loop. The AI does not just answer questions; it actively uses tools, observes the results, and decides the next step.
+Talon được thiết kế xoay quanh một vòng lặp hành động đa bước (multi-step action loop). AI không chỉ trả lời câu hỏi; nó chủ động sử dụng công cụ, quan sát kết quả và quyết định bước tiếp theo.
 
-    User (Telegram) ──▶ Bot Layer ──▶ AI Planner (Groq) ──▶ Action Engine ──▶ Windows OS
-                                           ▲                                      │
-                                           │ (Context: 30 msgs)                   │
-                                           └────────── [ Result Feedback ] ───────┘
-                                              Max 6 iterations per request
+    Người dùng (Telegram) ──▶ Lớp Bot ──▶ AI Planner (Groq) ──▶ Action Engine ──▶ Windows OS
+                                                ▲                                      │
+                                                │ (Ngữ cảnh: 30 tin nhắn)              │
+                                                └─────── [ Phản hồi Kết quả ] ─────────┘
+                                                Tối đa 6 vòng lặp cho mỗi yêu cầu
 
-**Design Principles:**
-1. **Raw Data Returns:** Actions execute and return strictly raw data. The AI synthesizes this into a natural Vietnamese response.
-2. **Zero Native Dependencies:** Mouse/keyboard control runs purely on PowerShell + Win32 API via .NET interop. No `node-gyp` or C++ compilers required.
-3. **Modular Extensibility:** Every action is a standalone module dynamically loaded by the registry.
+**Nguyên tắc thiết kế:**
+1. **Trả về dữ liệu thô:** Các hành động (action) thực thi và chỉ trả về dữ liệu thô. AI sẽ tổng hợp dữ liệu này thành một câu trả lời tiếng Việt tự nhiên.
+2. **Không phụ thuộc Native (Zero Native Dependencies):** Điều khiển chuột/bàn phím chạy hoàn toàn bằng PowerShell + Win32 API thông qua .NET interop. Không yêu cầu `node-gyp` hay trình biên dịch C++.
+3. **Khả năng mở rộng dạng Module:** Mỗi action là một module độc lập được tự động tải bởi hệ thống registry.
 
-## ✨ Core Features
+## ✨ Các tính năng cốt lõi
 
-### AI Planning & Execution
-* **Multi-Step Reasoning:** Capable of complex loops (e.g., *Search for a topic → Read specific URL → Extract data → Reply*).
-* **Context Retention:** Maintains a rolling history of the last 30 messages.
+### Lên kế hoạch & Thực thi bằng AI
+* **Suy luận đa bước:** Xử lý được các chuỗi phức tạp (ví dụ: *Tìm kiếm chủ đề → Đọc URL cụ thể → Trích xuất dữ liệu → Trả lời*).
+* **Ghi nhớ ngữ cảnh:** Duy trì lịch sử trò chuyện gồm 30 tin nhắn gần nhất.
 
-### Desktop Automation & Control
-* **Grid System:** Screen is mapped to a 16x18 grid (A1 to P18). Allows precise clicking, area screenshots, and targeted OCR.
-* **Live Control Mode:** Telegram inline keyboard for manual D-Pad navigation, clicking, and scrolling.
-* **Visual Overlays:** Automatically injects a red crosshair on screenshots to indicate current cursor position.
-* **Keyboard Emulation:** Sends keystrokes via `SendKeys`.
+### Tự động hóa & Điều khiển Desktop
+* **Hệ thống Lưới (Grid):** Màn hình được chia thành lưới 16x18 (Từ A1 đến P18). Cho phép click chuột chính xác, chụp ảnh một vùng, và OCR theo khu vực cụ thể.
+* **Chế độ điều khiển trực tiếp:** Bàn phím ảo nội tuyến (inline) trên Telegram để điều hướng D-Pad, click chuột và cuộn trang thủ công.
+* **Hiển thị trực quan:** Tự động chèn hồng tâm màu đỏ vào ảnh chụp màn hình để báo hiệu vị trí chuột hiện tại.
+* **Giả lập Bàn phím:** Gửi các phím bấm thông qua `SendKeys`.
 
-### Research & Connectivity
-* **Bypass Anti-Bot:** Integrates `Jina.ai Reader` to bypass Cloudflare for scraping Medium, YouTube descriptions, and news sites.
-* **Fallback Search:** 3-tier routing (`SearchAPI.io` → `SerpAPI` → `DuckDuckGo`).
-* **Image Caching:** Media searches cache results. Triggering "ảnh khác" (next image) instantly serves the next item without re-fetching.
+### Tìm kiếm & Kết nối mạng
+* **Vượt rào Anti-Bot:** Tích hợp `Jina.ai Reader` để vượt qua Cloudflare khi thu thập dữ liệu từ Medium, mô tả YouTube và các trang tin tức.
+* **Tìm kiếm dự phòng (Fallback):** Định tuyến 3 lớp (`SearchAPI.io` → `SerpAPI` → `DuckDuckGo`).
+* **Bộ nhớ đệm hình ảnh (Caching):** Lưu đệm các kết quả tìm kiếm đa phương tiện. Khi người dùng yêu cầu "ảnh khác", bot lập tức gửi ảnh tiếp theo mà không cần fetch lại từ đầu.
 
-### System & File Management
-* **Smart App Launcher:** Aliased execution (e.g., "Mở Discord") falling back to PowerShell's `Get-StartApps`.
-* **Auto-Provisioning:** Detects missing Python/Node packages and auto-installs them via `pip` or `npm`.
-* **Safe I/O:** Restricts file downloads, moving, and listing strictly to the user's Desktop, Documents, and Downloads folders.
+### Quản lý Hệ thống & Tập tin
+* **Khởi chạy ứng dụng thông minh:** Thực thi qua bí danh (ví dụ: "Mở Discord") kết hợp phương án dự phòng dùng `Get-StartApps` của PowerShell.
+* **Tự động cài đặt (Auto-Provisioning):** Phát hiện các gói thư viện Python/Node còn thiếu và tự động cài đặt qua `pip` hoặc `npm`.
+* **I/O An toàn:** Giới hạn việc tải xuống, di chuyển và liệt kê tập tin nghiêm ngặt trong các thư mục Desktop, Documents và Downloads của người dùng.
 
-## 🛠 Tech Stack
+## 🛠 Công nghệ sử dụng
 
-| Component | Technology |
+| Thành phần | Công nghệ |
 |---|---|
-| **Runtime** | Node.js (ES Modules) |
-| **Brain** | Groq SDK (LLaMA 3.1 8B) |
-| **Interface** | Telegram Bot API |
-| **I/O Control** | PowerShell + Win32 API |
-| **Vision / OCR** | `screenshot-desktop`, `sharp`, `Tesseract.js` |
-| **Web Data** | SearchAPI.io, SerpAPI, DuckDuckGo, Jina.ai |
+| **Môi trường chạy** | Node.js (ES Modules) |
+| **Bộ não AI** | Groq SDK (LLaMA 3.1 8B) |
+| **Giao diện** | Telegram Bot API |
+| **Điều khiển I/O** | PowerShell + Win32 API |
+| **Thị giác / OCR** | `screenshot-desktop`, `sharp`, `Tesseract.js` |
+| **Dữ liệu Web** | SearchAPI.io, SerpAPI, DuckDuckGo, Jina.ai |
 
-## 📁 Project Structure
+## 📁 Cấu trúc dự án
 
     talon/
-    ├── data/                     # Runtime outputs (screenshots, logs)
-    │   └── _mouse.ps1            # Auto-generated PowerShell script for I/O
+    ├── data/                     # Dữ liệu xuất ra khi chạy (ảnh chụp, log)
+    │   └── _mouse.ps1            # Kịch bản PowerShell tự tạo để điều khiển I/O
     ├── src/
-    │   ├── actions/              # Modular action scripts
-    │   │   ├── registry.js       # Auto-discovery & dispatch
-    │   │   ├── webSearch.js      # DuckDuckGo / SearchAPI.io fallback
-    │   │   ├── serpSearch.js     # SerpAPI (images/news/videos)
-    │   │   ├── fetchUrl.js       # Jina.ai Reader (bypass Cloudflare)
-    │   │   ├── runCommand.js     # Controlled shell execution
-    │   │   ├── openApp.js        # App launcher via aliases & StartApps
-    │   │   ├── openBrowser.js    # Default browser URL open
-    │   │   ├── screenshot.js     # Full screen + grid overlay
-    │   │   ├── gridClick.js      # Click at grid coordinate
-    │   │   ├── gridScreenshot.js # Crop region screenshot
-    │   │   ├── gridOcr.js        # OCR on grid region
-    │   │   ├── typeText.js       # Keyboard input via SendKeys
-    │   │   ├── controlModeOn.js  # Activate inline keyboard control
-    │   │   ├── controlModeOff.js # Deactivate control mode
-    │   │   ├── getFileList.js    # List files in safe directories
-    │   │   ├── downloadFile.js   # HTTP download to safe directories
-    │   │   ├── moveFile.js       # Move between safe directories
-    │   │   ├── detectEnv.js      # Detect node/python versions
-    │   │   └── installPackage.js # Auto-detect and pip/npm install
-    │   ├── grid/                 # Grid math, parsing (A1:C3), and SVG overlay
-    │   ├── planner/              # Groq client, prompt engineering, loop logic
-    │   ├── telegram/             # Bot listeners, control mode UI
-    │   ├── utils/                # PowerShell wrappers (mouse.js)
-    │   ├── config.js             # Environment validation
-    │   └── index.js              # Entry point
+    │   ├── actions/              # Các kịch bản action dạng module
+    │   │   ├── registry.js       # Tự động nhận diện & phân phối action
+    │   │   ├── webSearch.js      # Tìm kiếm DuckDuckGo / SearchAPI.io
+    │   │   ├── serpSearch.js     # Tìm kiếm SerpAPI (ảnh/tin tức/video)
+    │   │   ├── fetchUrl.js       # Đọc URL qua Jina.ai (bypass Cloudflare)
+    │   │   ├── runCommand.js     # Thực thi lệnh shell (có kiểm soát)
+    │   │   ├── openApp.js        # Mở app qua bí danh & StartApps
+    │   │   ├── openBrowser.js    # Mở URL bằng trình duyệt mặc định
+    │   │   ├── screenshot.js     # Chụp toàn màn hình + vẽ lưới
+    │   │   ├── gridClick.js      # Click chuột tại tọa độ lưới
+    │   │   ├── gridScreenshot.js # Chụp cắt vùng theo lưới
+    │   │   ├── gridOcr.js        # OCR đọc chữ trên vùng lưới
+    │   │   ├── typeText.js       # Nhập văn bản qua SendKeys
+    │   │   ├── controlModeOn.js  # Bật chế độ điều khiển thủ công
+    │   │   ├── controlModeOff.js # Tắt chế độ điều khiển thủ công
+    │   │   ├── getFileList.js    # Xem danh sách file (thư mục an toàn)
+    │   │   ├── downloadFile.js   # Tải file HTTP về (thư mục an toàn)
+    │   │   ├── moveFile.js       # Di chuyển file (thư mục an toàn)
+    │   │   ├── detectEnv.js      # Nhận diện phiên bản node/python
+    │   │   └── installPackage.js # Tự động phát hiện và cài pip/npm
+    │   ├── grid/                 # Tính toán lưới, parse (A1:C3), tạo ảnh SVG
+    │   ├── planner/              # Groq client, prompt AI, logic vòng lặp
+    │   ├── telegram/             # Lắng nghe bot, UI chế độ điều khiển
+    │   ├── utils/                # Các wrapper PowerShell (mouse.js)
+    │   ├── config.js             # Xác thực biến môi trường
+    │   └── index.js              # Điểm khởi chạy chính
     ├── .env.example
     ├── package.json
-    └── README.md
+    └── README_vi.md
 
-## 🚀 Getting Started
+## 🚀 Bắt đầu
 
-### Prerequisites
+### Điều kiện tiên quyết
 * Windows 10/11
 * Node.js v18+
-* A Telegram Bot Token from [@BotFather](https://t.me/BotFather)
+* Bot Token Telegram từ [@BotFather](https://t.me/BotFather)
 
-### Installation
+### Cài đặt
 
-1. **Clone the repository:**
-   `git clone https://github.com/yourusername/talon.git`
+1. **Clone repository:**
+   `git clone https://github.com/Konmeo22122/Talon.git`
    `cd talon`
 
-2. **Install dependencies:**
+2. **Cài đặt thư viện:**
    `npm install`
 
-3. **Environment Setup:**
+3. **Thiết lập Môi trường:**
    `cp .env.example .env`
    
-   Fill in your `.env` file with the required keys (see Configuration below).
+   Điền các khóa (key) cần thiết vào file `.env` của bạn (xem mục Cấu hình bên dưới).
 
-4. **Start Talon:**
+4. **Khởi động Talon:**
    `npm start`
 
-## ⚙ Configuration Variables
+## ⚙ Các biến cấu hình
 
-Edit your `.env` file before starting the application:
+Chỉnh sửa file `.env` của bạn trước khi khởi động ứng dụng:
 
-| Variable | Status | Description |
+| Biến số | Trạng thái | Mô tả |
 |---|---|---|
-| `TELEGRAM_BOT_TOKEN` | **Required** | Provided by BotFather. |
-| `TELEGRAM_OWNER_ID` | **Required** | Your personal Telegram User ID. Only this ID can issue commands. |
-| `GROQ_API_KEY` | **Required** | Authentication for the LLaMA planner. |
-| `SEARCHAPI_KEY` | Optional | For enhanced Google search capabilities. |
-| `SERPAPI_API_KEY` | Optional | For image, news, and video search. |
+| `TELEGRAM_BOT_TOKEN` | **Bắt buộc** | Lấy từ BotFather. |
+| `TELEGRAM_OWNER_ID` | **Bắt buộc** | ID Người dùng Telegram cá nhân của bạn. Chỉ ID này mới có thể ra lệnh. |
+| `GROQ_API_KEY` | **Bắt buộc** | Mã xác thực cho bộ não AI LLaMA. |
+| `SEARCHAPI_KEY` | Tùy chọn | Dùng để tăng cường khả năng tìm kiếm Google. |
+| `SERPAPI_API_KEY` | Tùy chọn | Dùng cho tìm kiếm hình ảnh, tin tức và video. |
 
-## 📄 License
+## 📄 Giấy phép
 
-This project is licensed under the MIT License.
+Dự án này được cấp phép theo Giấy phép MIT.
